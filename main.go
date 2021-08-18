@@ -18,24 +18,30 @@ func (h *MyEventHandler) OnRow(e *canal.RowsEvent) error {
 	// conn, _ := client.Connect("172.31.30.220:3307", "root", "test123456", "game_backend")
 	// r, _ := conn.Execute(`insert into table (id, name) values (1, "abc")`)
 
-	fields := []string{}
-	values := []interface{}{}
+	fields := ""
+	values := ""
 	fv := ""
+	key := ""
+	val := ""
 	for ci, cc := range e.Table.Columns {
 		// row := fmt.Sprintf("%s, %s, %d, %v", e.Table.Name, cc.Name, ci, e.Rows[len(e.Rows)-1][ci])
 		// log.Println("row info: ", row)
+		if ci == 0 {
+			key = cc.Name
+			val = fmt.Sprintf("%v", e.Rows[len(e.Rows)-1][ci])
+		}
 		if ci > 0 {
 			fv += fmt.Sprintf("%s=%s, ", cc.Name, e.Rows[len(e.Rows)-1][ci])
 		}
-		fields = append(fields, cc.Name)
-		values = append(values, e.Rows[len(e.Rows)-1][ci])
+		fields += cc.Name
+		values += fmt.Sprintf("%v", e.Rows[len(e.Rows)-1][ci])
 	}
 
 	switch e.Action {
 	case canal.UpdateAction:
 		log.Println("update")
 		tfv := strings.TrimRight(fv, ", ")
-		update := fmt.Sprintf(`UPDATE %s SET %s WHERE %s=%s`, e.Table.Name, tfv, fields[0], values[0])
+		update := fmt.Sprintf(`UPDATE %s SET %s WHERE %s=%s`, e.Table.Name, tfv, key, val)
 		log.Println(update)
 	case canal.InsertAction:
 		log.Println("insert")
