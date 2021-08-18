@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/go-mysql-org/go-mysql/canal"
@@ -12,7 +13,11 @@ type MyEventHandler struct {
 }
 
 func (h *MyEventHandler) OnRow(e *canal.RowsEvent) error {
-	log.Printf("%s, %s, %s, %v", e.Table.Schema, e.Table.Name, e.Action, e.Rows)
+	// log.Printf("%s, %s, %s, %v", e.Table.Schema, e.Table.Name, e.Action, e.Rows)
+	for ci, cc := range e.Table.Columns {
+		row := fmt.Sprintf("%s, %d, %v", cc.Name, ci, e.Rows[len(e.Rows)-1][ci])
+		log.Println("row info: ", row)
+	}
 	return nil
 }
 
