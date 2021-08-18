@@ -33,19 +33,26 @@ func (h *MyEventHandler) OnRow(e *canal.RowsEvent) error {
 		if ci > 0 {
 			fv += fmt.Sprintf("%s=%s, ", cc.Name, e.Rows[len(e.Rows)-1][ci])
 		}
-		fields += cc.Name
-		values += fmt.Sprintf("%v", e.Rows[len(e.Rows)-1][ci])
+		fields += cc.Name + ", "
+		values += fmt.Sprintf("%v, ", e.Rows[len(e.Rows)-1][ci])
 	}
 
 	switch e.Action {
 	case canal.UpdateAction:
 		log.Println("update")
+		log.Println("=====================")
+		log.Println(fields)
+		log.Println("=====================")
+		log.Println(values)
+		log.Println("=====================")
 		tfv := strings.TrimRight(fv, ", ")
 		update := fmt.Sprintf(`UPDATE %s SET %s WHERE %s=%s`, e.Table.Name, tfv, key, val)
 		log.Println(update)
 	case canal.InsertAction:
 		log.Println("insert")
-		insert := fmt.Sprintf(`insert into %s %v values %v`, e.Table.Name, fields, values)
+		fs := strings.TrimRight(fields, ", ")
+		vs := strings.TrimRight(values, ", ")
+		insert := fmt.Sprintf(`insert into %s (%v) values (%v)`, e.Table.Name, fs, vs)
 		log.Println(insert)
 	case canal.DeleteAction:
 		log.Println("delete")
