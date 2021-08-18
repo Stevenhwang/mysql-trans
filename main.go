@@ -42,7 +42,7 @@ func main() {
 	// Register a handler to handle RowsEvent
 	c.SetEventHandler(&MyEventHandler{})
 
-	startPos := mysql.Position{Name: "binlog.000114", Pos: 67061836}
+	startPos := mysql.Position{Name: "binlog.000114", Pos: 98570471}
 
 	// Start canal
 	c.RunFrom(startPos)
