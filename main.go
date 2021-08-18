@@ -39,15 +39,10 @@ func (h *MyEventHandler) OnRow(e *canal.RowsEvent) error {
 
 	switch e.Action {
 	case canal.UpdateAction:
-		log.Println("update")
-		log.Println("=====================")
-		log.Println(fields)
-		log.Println("=====================")
-		log.Println(values)
-		log.Println("=====================")
-		tfv := strings.TrimRight(fv, ", ")
-		update := fmt.Sprintf(`UPDATE %s SET %s WHERE %s=%s`, e.Table.Name, tfv, key, val)
-		log.Println(update)
+		log.Printf("update %v %v", key, val)
+		// tfv := strings.TrimRight(fv, ", ")
+		// update := fmt.Sprintf(`UPDATE %s SET %s WHERE %s=%s`, e.Table.Name, tfv, key, val)
+		// log.Println(update)
 	case canal.InsertAction:
 		log.Println("insert")
 		fs := strings.TrimRight(fields, ", ")
