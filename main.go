@@ -15,7 +15,7 @@ type MyEventHandler struct {
 func (h *MyEventHandler) OnRow(e *canal.RowsEvent) error {
 	// log.Printf("%s, %s, %s, %v", e.Table.Schema, e.Table.Name, e.Action, e.Rows)
 	for ci, cc := range e.Table.Columns {
-		row := fmt.Sprintf("%s, %d, %v", cc.Name, ci, e.Rows[len(e.Rows)-1][ci])
+		row := fmt.Sprintf("%s, %s, %d, %v", e.Table.Name, cc.Name, ci, e.Rows[len(e.Rows)-1][ci])
 		log.Println("row info: ", row)
 	}
 	return nil
@@ -32,7 +32,7 @@ func main() {
 	cfg.Password = "jenkins"
 
 	cfg.Dump.TableDB = "game_backend"
-	cfg.Dump.Tables = []string{"Sp_GameRecord", "Sp_PlayerGameHistory"}
+	// cfg.Dump.Tables = []string{"Sp_GameRecord", "Sp_PlayerGameHistory"}
 
 	c, err := canal.NewCanal(cfg)
 	if err != nil {
