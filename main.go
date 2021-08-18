@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/go-mysql-org/go-mysql/canal"
@@ -14,10 +13,18 @@ type MyEventHandler struct {
 
 func (h *MyEventHandler) OnRow(e *canal.RowsEvent) error {
 	// log.Printf("%s, %s, %s, %v", e.Table.Schema, e.Table.Name, e.Action, e.Rows)
-	for ci, cc := range e.Table.Columns {
-		row := fmt.Sprintf("%s, %s, %d, %v", e.Table.Name, cc.Name, ci, e.Rows[len(e.Rows)-1][ci])
-		log.Println("row info: ", row)
+	switch e.Action {
+	case canal.UpdateAction:
+		log.Println("update")
+	case canal.InsertAction:
+		log.Println("insert")
+	case canal.DeleteAction:
+		log.Println("delete")
 	}
+	// for ci, cc := range e.Table.Columns {
+	// 	row := fmt.Sprintf("%s, %s, %d, %v", e.Table.Name, cc.Name, ci, e.Rows[len(e.Rows)-1][ci])
+	// 	log.Println("row info: ", row)
+	// }
 	return nil
 }
 
