@@ -14,6 +14,12 @@ type MyEventHandler struct {
 	canal.DummyEventHandler
 }
 
+func (h *MyEventHandler) OnPosSynced(pos mysql.Position, set mysql.GTIDSet, force bool) error {
+	record := fmt.Sprintf("%s %d", pos.Name, pos.Pos)
+	log.Println("OnPosSynced: ", record)
+	return nil
+}
+
 func (h *MyEventHandler) OnRow(e *canal.RowsEvent) error {
 	table := fmt.Sprintf("%s.%s", e.Table.Schema, e.Table.Name)
 
@@ -47,7 +53,6 @@ func (h *MyEventHandler) OnRow(e *canal.RowsEvent) error {
 		if err != nil {
 			log.Println(err)
 		}
-
 	case canal.InsertAction:
 		log.Println("insert")
 		fields := []string{}
@@ -76,6 +81,21 @@ func (h *MyEventHandler) OnRow(e *canal.RowsEvent) error {
 		}
 	case canal.DeleteAction:
 		log.Println("delete")
+		db := sqlbuilder.NewDeleteBuilder()
+		db.DeleteFrom(table)
+		key := ""
+		var val interface{}
+		for ci, cc := range e.Table.Columns {
+			if ci == 0 {
+				key = cc.Name
+				val = e.Rows[len(e.Rows)-1][ci]
+			}
+		}
+		db.Where(db.Equal(key, val))
+		sql, args := db.Build()
+		query, err := sqlbuilder.MySQL.Interpolate(sql, args)
+		fmt.Println(query)
+		fmt.Println(err)
 	}
 
 	return nil
