@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"log"
 
@@ -9,16 +8,11 @@ import (
 	"github.com/go-mysql-org/go-mysql/client"
 	"github.com/go-mysql-org/go-mysql/mysql"
 	"github.com/huandu/go-sqlbuilder"
-	golog "github.com/siddontang/go-log/log"
 )
 
 type MyEventHandler struct {
 	canal.DummyEventHandler
 }
-
-// dest mysql
-var pool = client.NewPool(golog.Debugf, 5, 10, 3, "172.31.30.220:3307", "root", "test123456", "game_backend")
-var ctx = context.Background()
 
 func (h *MyEventHandler) OnRow(e *canal.RowsEvent) error {
 	fields := []string{}
@@ -43,9 +37,9 @@ func (h *MyEventHandler) OnRow(e *canal.RowsEvent) error {
 		query, err := sqlbuilder.MySQL.Interpolate(sql, args)
 		fmt.Println(query)
 		fmt.Println(err)
-		// get conn from pool
-		conn, _ := pool.GetConn(ctx)
-		defer pool.PutConn(conn)
+		// dest mysql conn
+		conn, err := client.Connect("172.31.30.220:3307", "root", "test123456", "game_backend")
+		defer conn.Close()
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -80,7 +74,7 @@ func main() {
 	// Register a handler to handle RowsEvent
 	c.SetEventHandler(&MyEventHandler{})
 
-	startPos := mysql.Position{Name: "binlog.000114", Pos: 397788479}
+	startPos := mysql.Position{Name: "binlog.000114", Pos: 398967830}
 
 	// Start canal
 	c.RunFrom(startPos)
