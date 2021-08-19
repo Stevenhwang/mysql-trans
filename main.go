@@ -17,7 +17,7 @@ type MyEventHandler struct {
 }
 
 // dest mysql
-var pool = client.NewPool(golog.Debugf, 50, 100, 5, "172.31.30.220:3307", "root", "test123456", "game_backend")
+var pool = client.NewPool(golog.Debugf, 5, 10, 3, "172.31.30.220:3307", "root", "test123456", "game_backend")
 var ctx = context.Background()
 
 func (h *MyEventHandler) OnRow(e *canal.RowsEvent) error {
@@ -80,7 +80,7 @@ func main() {
 	// Register a handler to handle RowsEvent
 	c.SetEventHandler(&MyEventHandler{})
 
-	startPos := mysql.Position{Name: "binlog.000114", Pos: 393358028}
+	startPos := mysql.Position{Name: "binlog.000114", Pos: 397788479}
 
 	// Start canal
 	c.RunFrom(startPos)
