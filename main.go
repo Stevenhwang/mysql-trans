@@ -96,6 +96,16 @@ func (h *MyEventHandler) OnRow(e *canal.RowsEvent) error {
 		query, err := sqlbuilder.MySQL.Interpolate(sql, args)
 		fmt.Println(query)
 		fmt.Println(err)
+		// dest mysql conn
+		conn, err := client.Connect("172.31.30.220:3307", "root", "test123456", "game_backend")
+		defer conn.Close()
+		if err != nil {
+			log.Fatal(err)
+		}
+		_, err = conn.Execute(sql, args...)
+		if err != nil {
+			log.Println(err)
+		}
 	}
 
 	return nil
