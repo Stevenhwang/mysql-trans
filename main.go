@@ -15,20 +15,37 @@ type MyEventHandler struct {
 }
 
 func (h *MyEventHandler) OnRow(e *canal.RowsEvent) error {
-	fields := []string{}
-	values := []interface{}{}
 	table := fmt.Sprintf("%s.%s", e.Table.Schema, e.Table.Name)
-
-	for ci, cc := range e.Table.Columns {
-		fields = append(fields, cc.Name)
-		values = append(values, e.Rows[len(e.Rows)-1][ci])
-	}
 
 	switch e.Action {
 	case canal.UpdateAction:
 		log.Printf("update")
+		key := ""
+		var val interface{}
+		ub := sqlbuilder.NewUpdateBuilder()
+		ub.Update(table)
+		for ci, cc := range e.Table.Columns {
+			if ci == 0 {
+				key = cc.Name
+				val = e.Rows[len(e.Rows)-1][ci]
+			} else {
+				ub.SetMore(ub.Assign(cc.Name, e.Rows[len(e.Rows)-1][ci]))
+			}
+		}
+		ub.Where(ub.Equal(key, val))
+		sql, args := ub.Build()
+		query, err := sqlbuilder.MySQL.Interpolate(sql, args)
+		fmt.Println(query)
+		fmt.Println(err)
+
 	case canal.InsertAction:
 		log.Println("insert")
+		fields := []string{}
+		values := []interface{}{}
+		for ci, cc := range e.Table.Columns {
+			fields = append(fields, cc.Name)
+			values = append(values, e.Rows[len(e.Rows)-1][ci])
+		}
 		ib := sqlbuilder.NewInsertBuilder()
 		ib.InsertInto(table)
 		ib.Cols(fields...)
