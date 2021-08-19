@@ -16,7 +16,8 @@ type MyEventHandler struct {
 	canal.DummyEventHandler
 }
 
-var pool = client.NewPool(golog.Debugf, 50, 100, 5, "127.0.0.1:3306", "root", "test123456", "game_backend")
+// dest mysql
+var pool = client.NewPool(golog.Debugf, 50, 100, 5, "172.31.30.220:3307", "root", "test123456", "game_backend")
 var ctx = context.Background()
 
 func (h *MyEventHandler) OnRow(e *canal.RowsEvent) error {
