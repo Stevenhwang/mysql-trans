@@ -10,6 +10,12 @@ import (
 	"github.com/huandu/go-sqlbuilder"
 )
 
+// get dest mysql conn
+func getConn() (*client.Conn, error) {
+	conn, err := client.Connect("172.31.30.220:3307", "root", "test123456", "game_backend")
+	return conn, err
+}
+
 type MyEventHandler struct {
 	canal.DummyEventHandler
 }
@@ -44,7 +50,7 @@ func (h *MyEventHandler) OnRow(e *canal.RowsEvent) error {
 		fmt.Println(query)
 		fmt.Println(err)
 		// dest mysql conn
-		conn, err := client.Connect("172.31.30.220:3307", "root", "test123456", "game_backend")
+		conn, err := getConn()
 		defer conn.Close()
 		if err != nil {
 			log.Fatal(err)
@@ -70,7 +76,7 @@ func (h *MyEventHandler) OnRow(e *canal.RowsEvent) error {
 		fmt.Println(query)
 		fmt.Println(err)
 		// dest mysql conn
-		conn, err := client.Connect("172.31.30.220:3307", "root", "test123456", "game_backend")
+		conn, err := getConn()
 		defer conn.Close()
 		if err != nil {
 			log.Fatal(err)
@@ -97,7 +103,7 @@ func (h *MyEventHandler) OnRow(e *canal.RowsEvent) error {
 		fmt.Println(query)
 		fmt.Println(err)
 		// dest mysql conn
-		conn, err := client.Connect("172.31.30.220:3307", "root", "test123456", "game_backend")
+		conn, err := getConn()
 		defer conn.Close()
 		if err != nil {
 			log.Fatal(err)
