@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"mysql-trans/config"
 
 	"github.com/go-mysql-org/go-mysql/canal"
 	"github.com/go-mysql-org/go-mysql/client"
@@ -12,7 +13,10 @@ import (
 
 // get dest mysql conn
 func getConn() (*client.Conn, error) {
-	conn, err := client.Connect("172.31.30.220:3307", "root", "test123456", "game_backend")
+	conn, err := client.Connect(config.Config.GetString("dest.addr"),
+		config.Config.GetString("dest.user"),
+		config.Config.GetString("dest.password"),
+		config.Config.GetString("dest.dbName"))
 	return conn, err
 }
 
@@ -123,11 +127,10 @@ func (h *MyEventHandler) String() string {
 
 func main() {
 	cfg := canal.NewDefaultConfig()
-	cfg.Addr = "127.0.0.1:3306"
-	cfg.User = "root"
-	cfg.Password = "jenkins"
-
-	cfg.Dump.TableDB = "game_backend"
+	cfg.Addr = config.Config.GetString("source.addr")
+	cfg.User = config.Config.GetString("source.user")
+	cfg.Password = config.Config.GetString("source.password")
+	cfg.Dump.TableDB = config.Config.GetString("source.dbName")
 
 	c, err := canal.NewCanal(cfg)
 	if err != nil {
@@ -137,7 +140,7 @@ func main() {
 	// Register a handler to handle RowsEvent
 	c.SetEventHandler(&MyEventHandler{})
 
-	startPos := mysql.Position{Name: "binlog.000114", Pos: 398967830}
+	startPos := mysql.Position{Name: config.Config.GetString("source.binFile"), Pos: config.Config.GetUint32("source.binPos")}
 
 	// Start canal
 	c.RunFrom(startPos)

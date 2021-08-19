@@ -1,0 +1,16 @@
+{
+    "source": {
+        "addr": "127.0.0.1:3306",
+        "user": "root",
+        "password": "jenkins",
+        "dbName": "game_backend",
+        "binFile": "binlog.000114",
+        "binPos": 398967830
+    },
+    "dest": {
+        "addr": "172.31.30.220:3307",
+        "user": "root",
+        "password": "test123456",
+        "dbName": "game_backend"
+    }
+}
