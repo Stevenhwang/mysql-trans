@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/go-mysql-org/go-mysql/canal"
+	"github.com/go-mysql-org/go-mysql/client"
 	"github.com/go-mysql-org/go-mysql/mysql"
 	"github.com/huandu/go-sqlbuilder"
 )
@@ -23,6 +24,12 @@ func (h *MyEventHandler) OnRow(e *canal.RowsEvent) error {
 		values = append(values, e.Rows[len(e.Rows)-1][ci])
 	}
 
+	// establish conn
+	conn, err := client.Connect("172.31.30.220:3307", "root", "test123456", "game_backend")
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	switch e.Action {
 	case canal.UpdateAction:
 		log.Printf("update")
@@ -36,6 +43,11 @@ func (h *MyEventHandler) OnRow(e *canal.RowsEvent) error {
 		query, err := sqlbuilder.MySQL.Interpolate(sql, args)
 		fmt.Println(query)
 		fmt.Println(err)
+		r, err := conn.Execute(sql, args)
+		fmt.Println(r.InsertId)
+		if err != nil {
+			log.Fatal(err)
+		}
 	case canal.DeleteAction:
 		log.Println("delete")
 	}
@@ -54,7 +66,6 @@ func main() {
 	cfg.Password = "jenkins"
 
 	cfg.Dump.TableDB = "game_backend"
-	// cfg.Dump.Tables = []string{"Sp_GameRecord", "Sp_PlayerGameHistory"}
 
 	c, err := canal.NewCanal(cfg)
 	if err != nil {
